@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 });
 
 //Add course
-app.post("/api/add/courses/", (req, res) => {
+app.post("/api/add", (req, res) => {
   const { error } = validateCourse(req.body);
 
   if (error) {
