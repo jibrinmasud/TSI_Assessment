@@ -19,9 +19,6 @@ const courses = [
     name: "course3",
   },
 ];
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
 
 app.get("/api/courses/", (req, res) => {
   res.send(courses);
@@ -46,23 +43,35 @@ app.post("/api/courses/", (req, res) => {
 //get course by Id
 app.get("/api/courses/:id", (req, res) => {
   const course = courses.find((c) => c.id === parseInt(req.params.id));
-  if (!course)
-    res.status(404).send("The course with the given ID was not found");
+  if (!course) return res.status(404).send("The course with the given ID was not found");
   res.send(course);
 });
 
-//updating course
-app.put("/api/course/:id", (req, res) => {
+// PUT route to update a course
+app.put("/api/courses/:id", (req, res) => {
+  // Find the course by ID
   const course = courses.find((c) => c.id === parseInt(req.params.id));
   if (!course)
-    res.status(404).send("The course with the given ID was not found");
+    return res.status(404).send("The course with the given ID was not found");
 
+  // Validate the request body
   const { error } = validateCourse(req.body);
-  if (error) {
-    res.status(400).send(error.details[0].message);
-    return;
-  }
+  if (error) return res.status(400).send(error.details[0].message);
+
+  // Update the course
   course.name = req.body.name;
+
+  // Send the updated course as the response
+  res.send(course);
+});
+
+app.delete("/api/courses/:id", (req, res) => {
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) {
+    return res.status(404).send("The course with the given ID was not found");
+  }
+  const index = courses.indexOf(course);
+  courses.splice(index, 1);
   res.send(course);
 });
 
@@ -72,6 +81,5 @@ function validateCourse(course) {
   });
   return schema.validate(course);
 }
-
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`listing on port ${port}...`));
